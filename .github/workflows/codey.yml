@@ -64,14 +64,7 @@ jobs:
               run: |
                   git clone https://github.com/mdonnalley/gemini-cli.git
                   cd gemini-cli
-                  # Try npm ci first (respects lock file), then fallback to clean install
-                  if npm ci --ignore-scripts; then
-                    echo "npm ci succeeded"
-                  else
-                    echo "npm ci failed, trying clean install"
-                    rm -f package-lock.json
-                    npm install --ignore-scripts
-                  fi
+                  npm ci
                   npm run build
 
             - name: Codey will fix it
