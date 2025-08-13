@@ -67,10 +67,16 @@ jobs:
               run: |
                   git clone https://github.com/mdonnalley/gemini-cli.git
                   cd gemini-cli
-                  rm -f package-lock.json
-                  npm cache clean --force
-                  npm install --no-package-lock
-                  npm run build
+                  # Try npm ci first (respects lock file), then fallback to clean install
+                  if npm ci --ignore-scripts; then
+                    echo "npm ci succeeded"
+                  else
+                    echo "npm ci failed, trying clean install"
+                    rm -f package-lock.json
+                    npm install --ignore-scripts
+                  fi
+                  # Check if start script exists and is executable
+                  ls -la scripts/start.js || echo "start.js not found in expected location"
 
             - name: Codey will fix it
               run: |
