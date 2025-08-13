@@ -138,7 +138,11 @@ jobs:
                   echo "Generating PR description for commit: $COMMIT_HASH"
 
                   # Generate PR description using gemini-cli
-                  PR_DESCRIPTION=$(node /tmp/gemini-cli/scripts/start.js -m gemini-2.5-flash --yolo --prompt "write a brief and clear PR description for the changes made in this commit $COMMIT_HASH. Do not give any preamble to the description, e.g. Heres a description... I ONLY want the final PR description")
+                  PROMPT="write a brief and clear PR description for the changes made in this commit $COMMIT_HASH. Do not give any preamble to the description, e.g. Heres a description... I ONLY want the final PR description and nothing else."
+                  echo "Using prompt: $PROMPT"
+                  PR_DESCRIPTION=$(node /tmp/gemini-cli/scripts/start.js -m gemini-2.5-flash --yolo --prompt "$PROMPT")
+
+                  echo "Generated PR description: $PR_DESCRIPTION"
 
                   # Save to output and environment
                   echo "PR_DESCRIPTION<<EOF" >> $GITHUB_OUTPUT
