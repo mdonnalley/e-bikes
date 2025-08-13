@@ -84,7 +84,8 @@ jobs:
 
                   node gemini-cli/scripts/start.js --prompt \
                    "You are a coding assistant specializing in fixing issues in this project. Analyze the issue and make the necessary changes to resolve it. ISSUE TITLE: ${{ steps.issue-data.outputs.title }} ISSUE BODY: ${{ steps.issue-data.outputs.body }}" \
-                   --yolo
+                   --yolo \
+                   -m gemini-2.5-flash
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                   ISSUE_NUMBER: ${{ steps.issue-data.outputs.number }}
@@ -133,7 +134,7 @@ jobs:
                   echo "Generating PR description for commit: $COMMIT_HASH"
 
                   # Generate PR description using gemini-cli
-                  PR_DESCRIPTION=$(node gemini-cli/scripts/start.js --yolo --prompt "write a brief and clear PR description for the changes made in this commit $COMMIT_HASH. Do not give any preamble to the description, e.g. Heres a description... I ONLY want the final PR description")
+                  PR_DESCRIPTION=$(node gemini-cli/scripts/start.js -m gemini-2.5-flash --yolo --prompt "write a brief and clear PR description for the changes made in this commit $COMMIT_HASH. Do not give any preamble to the description, e.g. Heres a description... I ONLY want the final PR description")
 
                   # Save to output and environment
                   echo "PR_DESCRIPTION<<EOF" >> $GITHUB_OUTPUT
