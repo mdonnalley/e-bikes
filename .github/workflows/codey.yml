@@ -154,14 +154,14 @@ jobs:
               uses: actions/github-script@v7
               with:
                   script: |
-                      const branchName = `issue-${{ steps.issue-data.outputs.number }}-automated-changes`;
+                      const branchName = `codey-issue-${{ steps.issue-data.outputs.number }}`;
                       const prDescription = `${{ steps.pr-description.outputs.PR_DESCRIPTION }}`;
 
                       try {
                           const { data: pullRequest } = await github.rest.pulls.create({
                               owner: context.repo.owner,
                               repo: context.repo.repo,
-                              title: `Automated changes for issue #${{ steps.issue-data.outputs.number }}`,
+                              title: `Codey fixes issue #${{ steps.issue-data.outputs.number }}`,
                               head: branchName,
                               base: 'main',
                               body: `${prDescription}
