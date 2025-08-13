@@ -67,13 +67,13 @@ jobs:
                   npm ci
                   npm run build
 
-            - name: Set up Salesforce CLI
-              run: npm install -g @salesforce/cli
+            # - name: Set up Salesforce CLI
+            #   run: npm install -g @salesforce/cli
 
-            - name: Auth
-              run: sf login org access-token --no-prompt --instance-url ${{ secrets.SF_INSTANCE_URL }}
-              env:
-                  SF_ACCESS_TOKEN: ${{ secrets.SF_ACCESS_TOKEN }}
+            # - name: Auth
+            #   run: sf login org access-token --no-prompt --instance-url ${{ secrets.SF_INSTANCE_URL }}
+            #   env:
+            #       SF_ACCESS_TOKEN: ${{ secrets.SF_ACCESS_TOKEN }}
 
             - name: Codey will fix it
               run: |
@@ -81,15 +81,10 @@ jobs:
                   echo "Issue number: ${{ steps.issue-data.outputs.number }}"
                   echo "Issue title: ${{ steps.issue-data.outputs.title }}"
                   echo "Issue author: ${{ steps.issue-data.outputs.author }}"
-                    # Validate required environment variables
-                    if [ -z "$SF_LLMG_USERNAME" ]; then
-                    echo "Error: SF_LLMG_USERNAME is not set"
-                    exit 1
-                    fi
 
                   node gemini-cli/scripts/start.js --prompt \
                    "You are a coding assistant specializing in fixing issues in this project. Analyze the issue and make the necessary changes to resolve it. ISSUE TITLE: ${{ steps.issue-data.outputs.title }} ISSUE BODY: ${{ steps.issue-data.outputs.body }}" \
-                   --yolo \
+                   --yolo
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                   ISSUE_NUMBER: ${{ steps.issue-data.outputs.number }}
@@ -97,7 +92,8 @@ jobs:
                   ISSUE_AUTHOR: ${{ steps.issue-data.outputs.author }}
                   ISSUE_BODY: ${{ steps.issue-data.outputs.body }}
                   CODEY_IGNORE_CHAT_COMPRESSION: true
-                  SF_LLMG_USERNAME: ${{ secrets.SF_LLMG_USERNAME }}
+                  # SF_LLMG_USERNAME: ${{ secrets.SF_LLMG_USERNAME }}
+                  GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
 
             - name: Create branch and commit changes
               run: |
@@ -145,7 +141,8 @@ jobs:
                   echo "EOF" >> $GITHUB_OUTPUT
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-                  SF_LLMG_USERNAME: ${{ secrets.SF_LLMG_USERNAME }}
+                  # SF_LLMG_USERNAME: ${{ secrets.SF_LLMG_USERNAME }}
+                  GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
                   CODEY_IGNORE_CHAT_COMPRESSION: true
 
             - name: Create Pull Request
