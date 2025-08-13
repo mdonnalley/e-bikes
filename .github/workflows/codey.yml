@@ -11,7 +11,7 @@ on:
                 type: number
 
 jobs:
-    run-script:
+    agent-codey:
         runs-on: ubuntu-latest
         steps:
             - name: Checkout repository
@@ -67,7 +67,9 @@ jobs:
               run: |
                   git clone https://github.com/mdonnalley/gemini-cli.git
                   cd gemini-cli
-                  npm install
+                  rm -f package-lock.json
+                  npm cache clean --force
+                  npm install --no-package-lock
                   npm run build
 
             - name: Codey will fix it
@@ -86,7 +88,7 @@ jobs:
                   ISSUE_AUTHOR: ${{ steps.issue-data.outputs.author }}
                   ISSUE_BODY: ${{ steps.issue-data.outputs.body }}
                   CODEY_IGNORE_CHAT_COMPRESSION: true
-                  SF_LLMG_USERNAME: ${{ secrets.SF_LLMG_USERNAME }}
+                  GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
 
             - name: Create branch and commit changes
               run: |
@@ -134,7 +136,7 @@ jobs:
                   echo "EOF" >> $GITHUB_OUTPUT
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-                  SF_LLMG_USERNAME: ${{ secrets.SF_LLMG_USERNAME }}
+                  GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
                   CODEY_IGNORE_CHAT_COMPRESSION: true
 
             - name: Create Pull Request
