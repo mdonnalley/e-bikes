@@ -167,18 +167,20 @@ jobs:
 
             - name: Create Pull Request
               uses: actions/github-script@v7
+              env:
+                PR_DESCRIPTION: ${{ steps.codey-will-fix-it.outputs.pr-description }}
+                COMMIT_MSG: ${{ steps.codey-will-fix-it.outputs.commit-msg }}
               with:
                 script: |
                   const branchName = `codey_${{ steps.issue-data.outputs.number }}`;
-                  const prDescription = `${{ steps.codey-will-fix-it.outputs.pr-description }}` || 'Automated fix by Codey';
-                  const commitMsg = `${{ steps.codey-will-fix-it.outputs.commit-msg }}`;
-                  const prTitle = commitMsg || `Codey fixes issue #${{ steps.issue-data.outputs.number }}`;
+                  const prDescription = process.env.PR_DESCRIPTION || 'Automated fix by Codey';
+                  const commitMsg = process.env.COMMIT_MSG || `Codey fixes issue #${{ steps.issue-data.outputs.number }}`;
 
                   try {
                     const { data: pullRequest } = await github.rest.pulls.create({
                       owner: context.repo.owner,
                       repo: context.repo.repo,
-                      title: prTitle,
+                      title: commitMsg,
                       head: branchName,
                       base: 'main',
                       body: `${prDescription}
