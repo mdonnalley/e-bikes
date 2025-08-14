@@ -93,7 +93,7 @@ jobs:
                   ISSUE TITLE: ${{ steps.issue-data.outputs.title }}
                   ISSUE BODY: ${{ steps.issue-data.outputs.body }}"
                   echo "Using prompt: $PROMPT"
-                  node /tmp/gemini-cli/scripts/start.js --prompt "$PROMPT" --yolo --model gemini-2.5-flash
+                  node /tmp/gemini-cli/scripts/start.js --prompt $PROMPT --yolo --model gemini-2.5-flash
 
                   # Read the PR description from the file if it exists
                   if [ -f "pr-description.txt" ]; then
