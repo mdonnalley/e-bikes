@@ -94,6 +94,7 @@ jobs:
                   if [ -f "pr-description.txt" ]; then
                     echo "pr-description<<EOF" >> $GITHUB_OUTPUT
                     cat pr-description.txt >> $GITHUB_OUTPUT
+                    echo "" >> $GITHUB_OUTPUT
                     echo "EOF" >> $GITHUB_OUTPUT
                     echo "Found pr-description.txt with content:"
                     cat pr-description.txt
@@ -107,6 +108,7 @@ jobs:
                   if [ -f "commit-msg.txt" ]; then
                     echo "commit-msg<<EOF" >> $GITHUB_OUTPUT
                     cat commit-msg.txt >> $GITHUB_OUTPUT
+                    echo "" >> $GITHUB_OUTPUT
                     echo "EOF" >> $GITHUB_OUTPUT
                     echo "Found commit-msg.txt with content:"
                     cat commit-msg.txt
