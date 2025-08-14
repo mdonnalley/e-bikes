@@ -92,7 +92,7 @@ jobs:
                   echo "Issue title: ${{ steps.issue-data.outputs.title }}"
                   echo "Issue author: ${{ steps.issue-data.outputs.author }}"
 
-                  PROMPT="You are a coding assistant specializing in fixing issues in this project. Analyze the issue and make the necessary changes to resolve it. After you have completed the changes, you MUST write a new file (pr-description.txt) containing an excellent PR description of the changes you made. After you have completed the changes, you MUST write a new file (commit-msg.txt) containing a conventional commit message for the changes you made. ISSUE TITLE: ${{ steps.issue-data.outputs.title }} ISSUE BODY: ${{ steps.issue-data.outputs.body }}"
+                  PROMPT="You are a coding assistant specializing in fixing issues in this project. Analyze the issue and make the necessary changes to resolve it. After you have completed the changes, you MUST write a new file (pr-description.txt) containing an excellent PR description of the changes you made (note that the description should not include anything resembling a conventional commit). After you have completed the changes, you MUST write a new file (commit-msg.txt) containing a conventional commit message for the changes you made. ISSUE TITLE: ${{ steps.issue-data.outputs.title }} ISSUE BODY: ${{ steps.issue-data.outputs.body }}"
 
                   echo "Using prompt: $PROMPT"
                   node /tmp/gemini-cli/scripts/start.js --prompt "$PROMPT" --yolo --model gemini-2.5-flash
@@ -174,7 +174,8 @@ jobs:
                 script: |
                   const branchName = `codey_${{ steps.issue-data.outputs.number }}`;
                   const prDescription = process.env.PR_DESCRIPTION || 'Automated fix by Codey';
-                  const commitMsg = process.env.COMMIT_MSG || `Codey fixes issue #${{ steps.issue-data.outputs.number }}`;
+                  const commitMsgLines = (process.env.COMMIT_MSG || `Codey fixes issue #${{ steps.issue-data.outputs.number }}`).split('\n');
+                  const commitMsg = commitMsgLines[0];
 
                   try {
                     const { data: pullRequest } = await github.rest.pulls.create({
