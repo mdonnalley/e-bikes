@@ -39,7 +39,7 @@ jobs:
                           issueAuthor = context.payload.issue.user.login;
                       } else {
                           // Manually triggered with workflow_dispatch
-                          issueNumber = github.event.inputs.issue_number;
+                          issueNumber = context.payload.inputs.issue_number;
 
                           // Fetch issue data
                           const { data: issue } = await github.rest.issues.get({
