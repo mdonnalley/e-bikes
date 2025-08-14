@@ -106,6 +106,7 @@ jobs:
 
                   # Read the commit message from the file if it exists
                   if [ -f "commit-msg.txt" ]; then
+                    echo
                     echo "commit-msg<<EOF" >> $GITHUB_OUTPUT
                     cat commit-msg.txt >> $GITHUB_OUTPUT
                     echo "" >> $GITHUB_OUTPUT
@@ -148,7 +149,8 @@ jobs:
                   fi
 
                   # Commit changes
-                    git commit -m "${{ steps.codey-will-fix-it.outputs.commit-msg }}"
+                  echo "${{ steps.codey-will-fix-it.outputs.commit-msg }}" > /tmp/commit-message.txt
+                  git commit -F /tmp/commit-message.txt
 
                   # Push the branch, handling potential conflicts
                   if ! git push origin "$BRANCH_NAME"; then
