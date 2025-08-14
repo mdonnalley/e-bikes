@@ -78,16 +78,45 @@ jobs:
             #       SF_ACCESS_TOKEN: ${{ secrets.SF_ACCESS_TOKEN }}
 
             - name: Codey will fix it
+              id: codey-will-fix-it
               run: |
                   echo "Running Codey..."
                   echo "Issue number: ${{ steps.issue-data.outputs.number }}"
                   echo "Issue title: ${{ steps.issue-data.outputs.title }}"
                   echo "Issue author: ${{ steps.issue-data.outputs.author }}"
 
-                  node /tmp/gemini-cli/scripts/start.js --prompt \
-                   "You are a coding assistant specializing in fixing issues in this project. Analyze the issue and make the necessary changes to resolve it. ISSUE TITLE: ${{ steps.issue-data.outputs.title }} ISSUE BODY: ${{ steps.issue-data.outputs.body }}" \
-                   --yolo \
-                   -m gemini-2.5-flash
+                  PROMPT="You are a coding assistant specializing in fixing issues in this project.
+                  Analyze the issue and make the necessary changes to resolve it.
+                  After you have completed the changes, you MUST write a new file (pr-description.txt) containing a brief PR description of the changes you made.
+                  After you have completed the changes, you MUST write a new file (commit-msg.txt) containing a conventional commit message for the changes you made.
+
+                  ISSUE TITLE: ${{ steps.issue-data.outputs.title }}
+                  ISSUE BODY: ${{ steps.issue-data.outputs.body }}"
+                  echo "Using prompt: $PROMPT"
+                  node /tmp/gemini-cli/scripts/start.js --prompt "$PROMPT" --yolo --model gemini-2.5-flash
+
+                  # Read the PR description from the file if it exists
+                  if [ -f "pr-description.txt" ]; then
+                    PR_DESCRIPTION=$(cat pr-description.txt)
+                    echo "pr-description=$PR_DESCRIPTION" >> $GITHUB_OUTPUT
+                    echo "Found pr-description.txt with content: $PR_DESCRIPTION"
+                    rm pr-description.txt
+                  else
+                    echo "pr-description.txt not found"
+                    echo "pr-description=Automated fix by Codey" >> $GITHUB_OUTPUT
+                  fi
+
+                  # Read the commit message from the file if it exists
+                  if [ -f "commit-msg.txt" ]; then
+                    COMMIT_MSG=$(cat commit-msg.txt)
+                    echo "commit-msg=$COMMIT_MSG" >> $GITHUB_OUTPUT
+                    echo "Found commit-msg.txt with content: $COMMIT_MSG"
+                    rm commit-msg.txt
+                  else
+                    echo "commit-msg.txt not found"
+                    echo "commit-msg=fix: automated fix by Codey" >> $GITHUB_OUTPUT
+                  fi
+
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                   ISSUE_NUMBER: ${{ steps.issue-data.outputs.number }}
@@ -105,7 +134,7 @@ jobs:
                   git config --local user.name "Codey"
 
                   # Create and switch to new branch
-                  BRANCH_NAME="codey-issue-${{ steps.issue-data.outputs.number }}"
+                  BRANCH_NAME="codey_${{ steps.issue-data.outputs.number }}"
                   git checkout -b "$BRANCH_NAME"
 
                   # Add all changes
@@ -118,11 +147,7 @@ jobs:
                   fi
 
                   # Commit changes
-                  git commit -m "Automated changes for issue #${{ steps.issue-data.outputs.number }}
-
-                  Changes made by Codey based on issue: #${{ steps.issue-data.outputs.number }}
-
-                  Closes #${{ steps.issue-data.outputs.number }}"
+                    git commit -m "${{ steps.codey-will-fix-it.outputs.commit-msg }}"
 
                   # Push the branch, handling potential conflicts
                   if ! git push origin "$BRANCH_NAME"; then
@@ -130,64 +155,40 @@ jobs:
                     git push origin "$BRANCH_NAME" --force
                   fi
 
-            - name: Generate PR description
-              id: pr-description
-              run: |
-                  # Get the latest commit hash
-                  COMMIT_HASH=$(git rev-parse HEAD)
-                  echo "Generating PR description for commit: $COMMIT_HASH"
-
-                  # Generate PR description using gemini-cli
-                  PROMPT="write a brief and clear PR description for the changes made in this commit $COMMIT_HASH. Do not give any preamble to the description, e.g. Heres a description... I ONLY want the final PR description and nothing else."
-                  echo "Using prompt: $PROMPT"
-                  PR_DESCRIPTION=$(node /tmp/gemini-cli/scripts/start.js -m gemini-2.5-flash --yolo --prompt "$PROMPT")
-
-                  echo "Generated PR description: $PR_DESCRIPTION"
-
-                  # Save to output and environment
-                  echo "PR_DESCRIPTION<<EOF" >> $GITHUB_OUTPUT
-                  echo "$PR_DESCRIPTION" >> $GITHUB_OUTPUT
-                  echo "EOF" >> $GITHUB_OUTPUT
-              env:
-                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-                  # SF_LLMG_USERNAME: ${{ secrets.SF_LLMG_USERNAME }}
-                  GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-                  CODEY_IGNORE_CHAT_COMPRESSION: true
-
             - name: Create Pull Request
               uses: actions/github-script@v7
               with:
-                  script: |
-                      const branchName = `codey-issue-${{ steps.issue-data.outputs.number }}`;
-                      const prDescription = `${{ steps.pr-description.outputs.PR_DESCRIPTION }}`;
+                script: |
+                  const branchName = `codey_${{ steps.issue-data.outputs.number }}`;
+                  const prDescription = `${{ steps.codey-will-fix-it.outputs.pr-description }}` || 'Automated fix by Codey';
 
-                      try {
-                          const { data: pullRequest } = await github.rest.pulls.create({
-                              owner: context.repo.owner,
-                              repo: context.repo.repo,
-                              title: `Codey fixes issue #${{ steps.issue-data.outputs.number }}`,
-                              head: branchName,
-                              base: 'main',
-                              body: `${prDescription}
+                  try {
+                    const { data: pullRequest } = await github.rest.pulls.create({
+                      owner: context.repo.owner,
+                      repo: context.repo.repo,
+                      title: `Codey fixes issue #${{ steps.issue-data.outputs.number }}`,
+                      head: branchName,
+                      base: 'main',
+                      body: `${prDescription}
 
-                      ---
-                      **Original Issue:** ${{ steps.issue-data.outputs.title }}
-                      **Issue Author:** @${{ steps.issue-data.outputs.author }}
-                      **Generated by:** Codey
+                  ---
+                  **Original Issue:** ${{ steps.issue-data.outputs.title }}
+                  **Issue Author:** @${{ steps.issue-data.outputs.author }}
+                  **Generated by:** Codey
 
-                      Closes #${{ steps.issue-data.outputs.number }}`
-                          });
+                  Closes #${{ steps.issue-data.outputs.number }}`
+                    });
 
-                          console.log(`Created PR #${pullRequest.number}: ${pullRequest.html_url}`);
+                    console.log(`Created PR #${pullRequest.number}: ${pullRequest.html_url}`);
 
-                      } catch (error) {
-                          console.error('Error creating PR:', error);
+                  } catch (error) {
+                    console.error('Error creating PR:', error);
 
-                          // Comment on issue if PR creation fails
-                          await github.rest.issues.createComment({
-                              issue_number: ${{ steps.issue-data.outputs.number }},
-                              owner: context.repo.owner,
-                              repo: context.repo.repo,
-                              body: `❌ Failed to create pull request with automated changes. Please check the workflow logs for details.`
-                          });
-                      }
+                    // Comment on issue if PR creation fails
+                    await github.rest.issues.createComment({
+                      issue_number: ${{ steps.issue-data.outputs.number }},
+                      owner: context.repo.owner,
+                      repo: context.repo.repo,
+                      body: `❌ Failed to create pull request with automated changes. Please check the workflow logs for details.`
+                    });
+                  }
