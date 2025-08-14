@@ -92,9 +92,11 @@ jobs:
 
                   # Read the PR description from the file if it exists
                   if [ -f "pr-description.txt" ]; then
-                    PR_DESCRIPTION=$(cat pr-description.txt)
-                    echo "pr-description=$PR_DESCRIPTION" >> $GITHUB_OUTPUT
-                    echo "Found pr-description.txt with content: $PR_DESCRIPTION"
+                    echo "pr-description<<EOF" >> $GITHUB_OUTPUT
+                    cat pr-description.txt >> $GITHUB_OUTPUT
+                    echo "EOF" >> $GITHUB_OUTPUT
+                    echo "Found pr-description.txt with content:"
+                    cat pr-description.txt
                     rm pr-description.txt
                   else
                     echo "pr-description.txt not found"
@@ -103,9 +105,11 @@ jobs:
 
                   # Read the commit message from the file if it exists
                   if [ -f "commit-msg.txt" ]; then
-                    COMMIT_MSG=$(cat commit-msg.txt)
-                    echo "commit-msg=$COMMIT_MSG" >> $GITHUB_OUTPUT
-                    echo "Found commit-msg.txt with content: $COMMIT_MSG"
+                    echo "commit-msg<<EOF" >> $GITHUB_OUTPUT
+                    cat commit-msg.txt >> $GITHUB_OUTPUT
+                    echo "EOF" >> $GITHUB_OUTPUT
+                    echo "Found commit-msg.txt with content:"
+                    cat commit-msg.txt
                     rm commit-msg.txt
                   else
                     echo "commit-msg.txt not found"
