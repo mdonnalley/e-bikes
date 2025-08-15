@@ -2,7 +2,7 @@
     "orgName": "Codey Bikes",
     "edition": "Developer",
     "hasSampleData": false,
-    "features": ["Communities", "Walkthroughs", "EnableSetPasswordInApi"],
+    "features": ["Communities", "Walkthroughs", "EnableSetPasswordInApi", "Einstein1AIPlatform"],
     "settings": {
         "communitiesSettings": {
             "enableNetworksEnabled": true

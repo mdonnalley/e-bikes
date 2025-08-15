@@ -1,8 +1,8 @@
 {
-    "name": "@salesforce/ebikes-lwc",
+    "name": "@salesforce/codey-bikes",
     "private": true,
     "version": "1.0.0",
-    "description": "EBikes Sample App - Lightning Web Components",
+    "description": "Codey Bikes Sample App - Lightning Web Components",
     "scripts": {
         "lint": "eslint **/lwc/**/*.js force-app/test/**",
         "test": "npm run test:unit",
