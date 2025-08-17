@@ -47,3 +47,7 @@ $RECYCLE.BIN/
 # UTAM
 pageObjects
 utam-lint.sarif
+
+# Temp directories
+temp/
+tmp/
