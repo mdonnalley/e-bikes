@@ -1,6 +1,6 @@
 {
     "mcpServers": {
-        "salesforce": {
+        "Salesforce DX": {
             "type": "stdio",
             "command": "npx",
             "args": [
