@@ -52,7 +52,7 @@ Anytime you modify an Apex class, it MUST be deployed in order to validate your 
 
 ### SOQL and DML in Apex Classes
 
-When writing Apex code that inclues SOQL (Salesforce Object Query Language) or DML (Data Maniuplation Language), use the related Object metadata to ground what you generate.
+When writing Apex code that inclues SOQL (Salesforce Object Query Language) or DML (Data Manipulation Language), use the related Object metadata to ground what you generate.
 
 Be particularly mindful of field types, max length, validation rules, and other constraints when inserting or updating records. Failure to do so may result in compile and/or runtime errors.
 
