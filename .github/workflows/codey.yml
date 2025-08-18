@@ -110,7 +110,7 @@ jobs:
                   PROMPT="You are a coding assistant specializing in fixing issues in this project. Analyze the issue and make the necessary changes to resolve it. After you have completed the changes, you MUST write a new file (pr-description.txt) containing an excellent PR description of the changes you made (note that the description should not include anything resembling a conventional commit). After you have completed the changes, you MUST write a new file (commit-msg.txt) containing a conventional commit message for the changes you made. ISSUE TITLE: $ISSUE_TITLE ISSUE BODY: $ISSUE_BODY"
 
                   echo "Using prompt: $PROMPT"
-                  node /tmp/gemini-cli/scripts/start.js --prompt "$PROMPT" --yolo --model gemini-2.5-flash
+                  node /tmp/gemini-cli/scripts/start.js --prompt "$PROMPT" --yolo
 
                   # Read the PR description from the file if it exists
                   if [ -f "pr-description.txt" ]; then
