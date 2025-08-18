@@ -9,8 +9,12 @@
                 "--orgs",
                 "ALLOW_ALL_ORGS",
                 "--toolsets",
-                "all"
+                "data, experimental, metadata, orgs, testing, users"
             ]
+        },
+        "playwright": {
+            "command": "npx",
+            "args": ["@playwright/mcp@latest"]
         }
     }
 }
