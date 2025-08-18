@@ -6,14 +6,14 @@ This project contains the Salesforce LWC Storefront for E-Bikes, an electric bic
 
 ## Setting Up Your Dev Environment
 
-- [Step One: Installing local tools](#optional-tool-installation)
+- [Step One: Install Local Tools](#step-one-install-local-tools)
     - [Code formatting](#code-formatting)
     - [Code linting](#code-linting)
     - [Pre-commit hook](#pre-commit-hook)
     - [Lightning Web Component tests](#lightning-web-component-tests)
-- [Step Two: Installing E-Bikes into a scratch org](#installing-e-bikes-into-a-scratch-org)
+- [Step Two: Build a Development Environment](#step-two-build-a-development-environment)
 
-## Step One: Installing Local Tools
+## Step One: Install Local Tools
 
 The E-Bikes dev team uses several tools and scripts to integrate modern web development best-practices into our Salesforce development process and our continuous integration/continuous deployment processes.
 
@@ -41,68 +41,68 @@ Prettier and ESLint will automatically run every time you commit changes. The co
 
 [Jest](https://jestjs.io/) is the testing library that we use to test our Lightning web components. More precisely, we use a [Jest wrapper library](https://github.com/salesforce/sfdx-lwc-jest) to run LWC tests. These tests are run on your local machine or in CI, not in Salesforce.
 
-## Step Two: Installing E-Bikes into a Scratch Org
+## Step Two: Build a Development Environment
 
-1. Set up your environment. Follow the steps in the [Quick Start: Lightning Web Components](https://trailhead.salesforce.com/content/learn/projects/quick-start-lightning-web-components/) Trailhead project. The steps include:
-    - Enable Dev Hub in your Trailhead Playground
-    - Install Salesforce CLI
-    - Install Visual Studio Code
-    - Install the Visual Studio Code Salesforce extensions, including the Lightning Web Components extension
+1. Decide if you want to use an existing Dev Hub for this project or authenticate a new one.
+    - If using an existing Dev Hub, set it as the default for this project:
 
-1. Determine if you have already authorized a developer hub org for this project. If you determine you have not already authorized a Dev Hub for this project, authorize one with the alias `DevHubOrg` and set it as your default Dev Hub:
+        ```
+        sf config set target-dev-hub=<Your_DevHub_Username_or_Alias>
+        ```
 
-    ```
-    sf org login web -d -a DevHubOrg
-    ```
+    - If using a new Dev Hub, authorize it with the alias `DevHubOrg` and set it as your default Dev Hub:
+        ```
+        sf org login web -d -a DevHubOrg
+        ```
 
-1. Create a scratch org with the alias `E-Bikes`:
+2. Create a scratch org with the alias `E-Bikes`:
 
     ```
     sf org create scratch -d -f config/project-scratch-def.json -a E-Bikes
     ```
 
-1. Push the app to your scratch org:
+3. Push the app to your scratch org:
 
     ```
     sf project deploy start
     ```
 
-1. Assign the **ebikes** permission set to the default user:
+4. Assign the **ebikes** permission set to the default user:
 
     ```
     sf org assign permset -n ebikes
     ```
 
-1. Assign the **Walkthroughs** permission set to the default user:
+5. Assign the **Walkthroughs** permission set to the default user:
 
     ```
     sf org assign permset -n Walkthroughs
     ```
 
-1. Import sample data:
+6. Import sample data:
 
     ```
     sf data tree import -p ./data/sample-data-plan.json
     ```
 
-1. Publish the Experience Cloud site:
+7. Publish the Experience Cloud site:
 
     ```
     sf community publish -n E-Bikes
     ```
 
-1. Deploy metadata for the Experience Cloud guest user profile (not part of the `force-app` package directory):
+8. Deploy Experience Cloud guest metadata from OUTSIDE the `force-app` package directory:
 
     ```
     sf project deploy start --metadata-dir=guest-profile-metadata -w 10
     ```
 
-1. Open the scratch org:
+9. Open the scratch org:
 
     ```
     sf org open
     ```
 
-1. In **Setup**, under **Themes and Branding**, activate the **Lightning Lite** theme.
+10. In **Setup**, under **Themes and Branding**, activate the **Lightning Lite** theme.
 
-1. In App Launcher, select the **E-Bikes** app.
+11. In App Launcher, select the **E-Bikes** app.
