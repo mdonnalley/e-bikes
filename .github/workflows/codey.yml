@@ -64,17 +64,17 @@ jobs:
             - name: Comment on issue
               uses: actions/github-script@v7
               with:
-                script: |
-                  await github.rest.issues.createComment({
-                    issue_number: ${{ steps.issue-data.outputs.number }},
-                    owner: context.repo.owner,
-                    repo: context.repo.repo,
-                    body: `**Codey has been assigned to this issue!**
+                  script: |
+                      await github.rest.issues.createComment({
+                        issue_number: ${{ steps.issue-data.outputs.number }},
+                        owner: context.repo.owner,
+                        repo: context.repo.repo,
+                        body: `**Codey has been assigned to this issue!**
 
-                  I'm analyzing the issue and will create a pull request with the fix shortly. Please hold tight while I work on this.
+                      I'm analyzing the issue and will create a pull request with the fix shortly. Please hold tight while I work on this.
 
-                  _From Codey with 💙 - your AI coding assistant_`
-                  });
+                      _With 💙 from Codey, your DX Coding agent_`
+                      });
 
             - name: Set up Node.js
               uses: actions/setup-node@v4
@@ -158,7 +158,7 @@ jobs:
                   git config --local user.name "Codey"
 
                   # Create and switch to new branch
-                  BRANCH_NAME="codey_${{ steps.issue-data.outputs.number }}"
+                  BRANCH_NAME="WI-00273${{ steps.issue-data.outputs.number }}"
                   git checkout -b "$BRANCH_NAME"
 
                   # Add all changes
@@ -184,93 +184,93 @@ jobs:
               id: create-pr
               uses: actions/github-script@v7
               env:
-                PR_DESCRIPTION: ${{ steps.codey-will-fix-it.outputs.pr-description }}
-                COMMIT_MSG: ${{ steps.codey-will-fix-it.outputs.commit-msg }}
+                  PR_DESCRIPTION: ${{ steps.codey-will-fix-it.outputs.pr-description }}
+                  COMMIT_MSG: ${{ steps.codey-will-fix-it.outputs.commit-msg }}
               with:
-                script: |
-                  const branchName = `codey_${{ steps.issue-data.outputs.number }}`;
-                  const prDescription = process.env.PR_DESCRIPTION || 'Automated fix by Codey';
-                  const commitMsgLines = (process.env.COMMIT_MSG || `Codey fixes issue #${{ steps.issue-data.outputs.number }}`).split('\n');
-                  const commitMsg = commitMsgLines[0];
+                  script: |
+                      const branchName = `codey_${{ steps.issue-data.outputs.number }}`;
+                      const prDescription = process.env.PR_DESCRIPTION || 'Automated fix by Codey';
+                      const commitMsgLines = (process.env.COMMIT_MSG || `Codey fixes issue #${{ steps.issue-data.outputs.number }}`).split('\n');
+                      const commitMsg = commitMsgLines[0];
 
-                  try {
-                    const { data: pullRequest } = await github.rest.pulls.create({
-                      owner: context.repo.owner,
-                      repo: context.repo.repo,
-                      title: commitMsg,
-                      head: branchName,
-                      base: 'main',
-                      body: `${prDescription}
+                      try {
+                        const { data: pullRequest } = await github.rest.pulls.create({
+                          owner: context.repo.owner,
+                          repo: context.repo.repo,
+                          title: commitMsg,
+                          head: branchName,
+                          base: 'main',
+                          body: `${prDescription}
 
-                  ---
-                  **Written by:** Codey
-                  **Original Issue:** [${{ steps.issue-data.outputs.title }}](#${{ steps.issue-data.outputs.number }})
-                  **Issue Author:** @${{ steps.issue-data.outputs.author }}
+                      ---
+                      **Written by:** Codey
+                      **Original Issue:** [${{ steps.issue-data.outputs.title }}](#${{ steps.issue-data.outputs.number }})
+                      **Issue Author:** @${{ steps.issue-data.outputs.author }}
 
-                  Closes #${{ steps.issue-data.outputs.number }}`
-                    });
+                      Closes #${{ steps.issue-data.outputs.number }}`
+                        });
 
-                    // Add label to the PR
-                    await github.rest.issues.addLabels({
-                      owner: context.repo.owner,
-                      repo: context.repo.repo,
-                      issue_number: pullRequest.number,
-                      labels: ['written-by-codey']
-                    });
+                        // Add label to the PR
+                        await github.rest.issues.addLabels({
+                          owner: context.repo.owner,
+                          repo: context.repo.repo,
+                          issue_number: pullRequest.number,
+                          labels: ['written-by-codey']
+                        });
 
-                    console.log(`Created PR #${pullRequest.number}: ${pullRequest.html_url}`);
+                        console.log(`Created PR #${pullRequest.number}: ${pullRequest.html_url}`);
 
-                    // Store PR details for completion comment
-                    core.setOutput('pr-number', pullRequest.number);
-                    core.setOutput('pr-url', pullRequest.html_url);
+                        // Store PR details for completion comment
+                        core.setOutput('pr-number', pullRequest.number);
+                        core.setOutput('pr-url', pullRequest.html_url);
 
-                  } catch (error) {
-                    console.error('Error creating PR:', error);
+                      } catch (error) {
+                        console.error('Error creating PR:', error);
 
-                    // Comment on issue if PR creation fails
-                    await github.rest.issues.createComment({
-                      issue_number: ${{ steps.issue-data.outputs.number }},
-                      owner: context.repo.owner,
-                      repo: context.repo.repo,
-                      body: `❌ Failed to create pull request with automated changes. Please check the workflow logs for details.`
-                    });
-                  }
+                        // Comment on issue if PR creation fails
+                        await github.rest.issues.createComment({
+                          issue_number: ${{ steps.issue-data.outputs.number }},
+                          owner: context.repo.owner,
+                          repo: context.repo.repo,
+                          body: `❌ Failed to create pull request with automated changes. Please check the workflow logs for details.`
+                        });
+                      }
 
             - name: Comment on completion
               if: always()
               uses: actions/github-script@v7
               with:
-                script: |
-                  const workflowResult = '${{ job.status }}';
-                  const prNumber = '${{ steps.create-pr.outputs.pr-number }}';
-                  const prUrl = '${{ steps.create-pr.outputs.pr-url }}';
-                  let message;
+                  script: |
+                      const workflowResult = '${{ job.status }}';
+                      const prNumber = '${{ steps.create-pr.outputs.pr-number }}';
+                      const prUrl = '${{ steps.create-pr.outputs.pr-url }}';
+                      let message;
 
-                  if (workflowResult === 'success' && prNumber) {
-                    message = `✅ **Codey has completed the work!**
+                      if (workflowResult === 'success' && prNumber) {
+                        message = `✅ **Codey created a fix for this issue!**
 
-                  I've analyzed the issue and created a pull request with the proposed fix: **[#${prNumber}](${prUrl})**
+                      I've analyzed the issue and created a pull request with the proposed fix: **[#${prNumber}](${prUrl})**
 
-                  Please review the changes and merge if they look good.
+                      Please review the changes and merge if they look good.
 
-                  _Thank you for using Codey!_`;
-                  } else if (workflowResult === 'success') {
-                    message = `✅ **Codey has completed the work!**
+                      _Thanks for teaming up with Codey!_`;
+                      } else if (workflowResult === 'success') {
+                        message = `✅ **Codey created a fix for this issue!**
 
-                  I've analyzed the issue and created a pull request with the proposed fix. Please review the changes and merge if they look good.
+                      I've analyzed the issue and created a pull request with the proposed fix. Please review the changes and merge if they look good.
 
-                  _Thank you for using Codey!_`;
-                  } else {
-                    message = `❌ **Codey encountered an issue**
+                      _Thanks for teaming up with Codey!_`;
+                      } else {
+                        message = `❌ **Codey encountered a problem while fixing this issue.**
 
-                  I wasn't able to complete the work on this issue. Please check the workflow logs for more details or try again.
+                      I wasn't able to complete the work on this issue. Please check the workflow logs for more details or try again.
 
-                  _Sorry for the inconvenience!_`;
-                  }
+                      _I apologize for the inconvenience!_`;
+                      }
 
-                  await github.rest.issues.createComment({
-                    issue_number: ${{ steps.issue-data.outputs.number }},
-                    owner: context.repo.owner,
-                    repo: context.repo.repo,
-                    body: message
-                  });
+                      await github.rest.issues.createComment({
+                        issue_number: ${{ steps.issue-data.outputs.number }},
+                        owner: context.repo.owner,
+                        repo: context.repo.repo,
+                        body: message
+                      });
