@@ -3,7 +3,7 @@
         <img
             src={orderItem.Product__r.Picture_URL__c}
             class="product slds-align_absolute-center"
-            alt=""
+            alt={orderItem.Product__r.Name}
         />
         <p class="title slds-align_absolute-center">
             {orderItem.Product__r.Name}
@@ -61,6 +61,7 @@
                 variant="bare"
                 size="large"
                 class="delete-button"
+                alternative-text="Delete order item"
             ></lightning-button-icon>
             <template lwc:if={isModified}>
                 <lightning-button-icon
@@ -69,6 +70,7 @@
                     variant="bare"
                     size="large"
                     class="save-button"
+                    alternative-text="Save order item changes"
                 ></lightning-button-icon>
             </template>
         </div>
