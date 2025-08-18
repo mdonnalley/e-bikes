@@ -25,6 +25,7 @@ EVERY time an action against Salesforce is required, you MUST follow this sequen
     - ONLY use the sf command. NEVER use sfdx.
     - ALWAYS the `--json` flag with ALL `sf` commands, EXCEPT for `sf org open`.
     - When an `sf` command must be run, ALWAYS run it for the user. DO NOT suggest that the user should run the command for themselves.
+    - NEVER run `sf org open` without asking the user if they want you to open the org.
     - Consider using the `sf-suggest-cli-command` MCP tool to validate command syntax.
 
 ## Git Repo

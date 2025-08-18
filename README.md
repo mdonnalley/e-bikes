@@ -55,48 +55,30 @@ Prettier and ESLint will automatically run every time you commit changes. The co
         sf org login web -d -a DevHubOrg
         ```
 
-2. Create a scratch org with the alias `E-Bikes`:
+2. Create a default scratch org with the alias `E-Bikes`:
 
-    ```
-    sf org create scratch -d -f config/project-scratch-def.json -a E-Bikes --json
-    ```
+3. Deploy the project source.
 
-3. Push the app to your scratch org:
+4. Assign BOTH the `ebikes` and `Walkthroughs` permission sets to the default user.
 
-    ```
-    sf project deploy start --json
-    ```
-
-4. Assign the **ebikes** permission set to the default user:
-
-    ```
-    sf org assign permset -n ebikes --json
-    ```
-
-5. Assign the **Walkthroughs** permission set to the default user:
-
-    ```
-    sf org assign permset -n Walkthroughs --json
-    ```
-
-6. Import sample data:
+5. Import sample data using this command:
 
     ```
     sf data tree import -p ./data/sample-data-plan.json --json
     ```
 
-7. Publish the Experience Cloud site:
+6. Publish the Experience Cloud site using this command:
 
     ```
     sf community publish -n E-Bikes --json
     ```
 
-8. Deploy Experience Cloud guest metadata from OUTSIDE the `force-app` package directory:
+7. Deploy Experience Cloud guest metadata using this command:
 
     ```
     sf project deploy start --metadata-dir=guest-profile-metadata -w 10 --json
     ```
 
-9. Open the org and go to **Setup**, under **Themes and Branding**, activate the **Lightning Lite** theme.
+8. After opening your scratch org, go to **Setup**, under **Themes and Branding**, and activate the **Lightning Lite** theme.
 
-10. In App Launcher, select the **E-Bikes** app.
+9. To explore the app, open the App Launcher and select the **E-Bikes** app.
