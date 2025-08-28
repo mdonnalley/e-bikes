@@ -1,20 +1,22 @@
 {
-    "mcpServers": {
-        "Salesforce DX": {
-            "type": "stdio",
-            "command": "npx",
-            "args": [
-                "-y",
-                "@salesforce/mcp@latest",
-                "--orgs",
-                "ALLOW_ALL_ORGS",
-                "--toolsets",
-                "data, experimental, metadata, orgs, testing, users"
-            ]
-        },
-        "playwright": {
-            "command": "npx",
-            "args": ["@playwright/mcp@latest"]
-        }
-    }
+  "mcpServers": {
+    "github": {
+      "type": "http",
+      "httpUrl": "https://api.githubcopilot.com/mcp/",
+      "trust": true,
+      "headers": {
+        "Authorization": "Bearer ${GH_TOKEN}"
+      }
+    },
+      "Salesforce DX": {
+        "type": "stdio",
+        "command": "npx",
+        "args": [
+            "-y",
+            "@salesforce/mcp@latest",
+            "--orgs",
+            "ALLOW_ALL_ORGS"
+        ]
+      }
+  }
 }
