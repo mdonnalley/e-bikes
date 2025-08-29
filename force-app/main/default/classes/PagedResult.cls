@@ -6,7 +6,10 @@ public with sharing class PagedResult {
     public Integer pageNumber { get; set; }
 
     @AuraEnabled
-    public Integer totalItemCount { get; set; }
+    public Boolean hasNext { get; set; }
+
+    @AuraEnabled
+    public Boolean hasPrevious { get; set; }
 
     @AuraEnabled
     public Object[] records { get; set; }
