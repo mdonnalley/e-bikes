@@ -15,7 +15,11 @@ public with sharing class ProductController {
     }
 
     @AuraEnabled(Cacheable=true scope='global')
-    public static PagedResult getProducts(Filters filters, Integer pageNumber) {
+    public static PagedResult getProducts(
+        Filters filters,
+        Integer pageNumber,
+        String lastName
+    ) {
         String key, whereClause = '';
         Decimal maxPrice;
         String[] categories, materials, levels, criteria = new List<String>{};
@@ -24,8 +28,24 @@ public with sharing class ProductController {
             materials = filters.materials;
             levels = filters.levels;
             if (!String.isEmpty(filters.searchKey)) {
-                key = '%' + filters.searchKey + '%';
-                criteria.add('Name LIKE :key');
+                key = filters.searchKey + '*';
+                List<List<SObject>> searchResults = [
+                    FIND :key
+                    IN ALL FIELDS
+                    RETURNING
+                        Product__c(
+                            Id,
+                            Name,
+                            MSRP__c,
+                            Description__c,
+                            Category__c,
+                            Level__c,
+                            Picture_URL__c,
+                            Material__c)
+                ];
+                PagedResult searchResult = new PagedResult();
+                searchResult.records = searchResults[0];
+                return searchResult;
             }
             if (filters.maxPrice >= 0) {
                 maxPrice = filters.maxPrice;
@@ -43,23 +63,23 @@ public with sharing class ProductController {
                 materials = filters.materials;
                 criteria.add('Material__c IN :materials');
             }
+            if (lastName != null) {
+                criteria.add('Name > :lastName');
+            }
             if (criteria.size() > 0) {
                 whereClause = 'WHERE ' + String.join(criteria, ' AND ');
             }
         }
         Integer pageSize = ProductController.PAGE_SIZE;
-        Integer offset = (pageNumber - 1) * pageSize;
         PagedResult result = new PagedResult();
         result.pageSize = pageSize;
         result.pageNumber = pageNumber;
-        result.totalItemCount = Database.countQuery(
-            'SELECT count() FROM Product__c ' + whereClause
-        );
         result.records = Database.query(
             'SELECT Id, Name, MSRP__c, Description__c, Category__c, Level__c, Picture_URL__c, Material__c FROM Product__c ' +
                 whereClause +
                 ' WITH USER_MODE' +
-                ' ORDER BY Name OFFSET :offset'
+                ' ORDER BY Name' +
+                ' LIMIT :pageSize'
         );
         return result;
     }
