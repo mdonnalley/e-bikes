@@ -45,6 +45,7 @@
 ## Root Cause Analysis (RCA)
 
 - When you are asked to perform an RCA, you must follow the RCA template below to the best of your ability.
+- NEVER mention the bot, Codey, in the RCA.
 
 **RCA Template:**
 
