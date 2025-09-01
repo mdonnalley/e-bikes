@@ -28,9 +28,6 @@ export default class ProductTileList extends LightningElement {
     /** The number of items on a page. */
     pageSize;
 
-    /** The total number of items matching the selection. */
-    totalItemCount = 0;
-
     /** JSON.stringified version of filters to pass to apex */
     filters = {};
 

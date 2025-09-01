@@ -8,11 +8,11 @@
                 class="search-bar"
             ></lightning-input>
         </template>
-        <template lwc:if={products.data}>
-            <template lwc:if={products.data.records.length}>
+        <template lwc:if={records}>
+            <template lwc:if={records.length}>
                 <div class="content">
                     <template
-                        for:each={products.data.records}
+                        for:each={records}
                         for:item="product"
                     >
                         <c-product-tile
@@ -26,9 +26,6 @@
                     </template>
                 </div>
                 <c-paginator
-                    page-number={pageNumber}
-                    page-size={products.data.pageSize}
-                    total-item-count={products.data.totalItemCount}
                     onprevious={handlePreviousPage}
                     onnext={handleNextPage}
                 ></c-paginator>
@@ -36,11 +33,11 @@
             <template lwc:else>
                 <c-placeholder
                     message="There are no products matching your current selection"
-                ></c-placeholder>
+                ></c--placeholder>
             </template>
         </template>
-        <template lwc:if={products.error}>
-            <c-error-panel errors={products.error}></c-error-panel>
+        <template lwc:if={error}>
+            <c-error-panel errors={error}></c-error-panel>
         </template>
     </div>
 </template>
