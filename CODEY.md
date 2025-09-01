@@ -109,3 +109,9 @@
 - Work Items:
 
 ---
+
+## IMPORTANT
+
+- You MUST NEVER run apex tests for any metadata changes you make.
+- You MUST NEVER deploy metadata changes you make.
+- You MUST NEVER create a new scratch org
