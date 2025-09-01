@@ -98,24 +98,12 @@
 **Corrective and Preventative Actions (CAPA)**
 
 - Short-term actions (next 1–2 weeks):
-    - [ ] Action — Owner — Due
 - Long-term actions:
-    - [ ] Action — Owner — Due
 - Monitoring/alerting improvements:
-    - [ ] Action — Owner — Due
 - Process/knowledge improvements:
-    - [ ] Action — Owner — Due
-
-**Lessons Learned**
-
-- What went well:
-- What didn’t go well:
-- Surprises/gaps:
 
 **Attachments/References**
 
-- Dashboards:
-- Logs/trace IDs:
 - PRs/changes:
 - Work Items:
 
