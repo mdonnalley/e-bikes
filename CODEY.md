@@ -45,6 +45,7 @@
 ## Root Cause Analysis (RCA)
 
 - When you are asked to perform an RCA, you must follow the RCA template below to the best of your ability.
+- All markdown must be formatted for Slack using `mrkdwn` format.
 
 **RCA Template:**
 
@@ -52,17 +53,7 @@
 
 **Title:** [Concise incident title]
 
-**Incident ID:** [e.g., INC-1234]
-
 **Date/Time (TZ):** [YYYY-MM-DD HH:MM – HH:MM]
-
-**Prepared by:** [Name]
-
-**Reviewers:** [Names]
-
-**Status:** [Draft|Final]
-
-**Version:** [v1.0]
 
 **Summary**
 
@@ -122,22 +113,11 @@
 - What didn’t go well:
 - Surprises/gaps:
 
-**Follow-ups**
-
-- Postmortem meeting date:
-- Communication updates (status page, customers, internal):
-
 **Attachments/References**
 
 - Dashboards:
 - Logs/trace IDs:
 - PRs/changes:
-- Tickets:
-
-**Approvals**
-
-- Incident commander:
-- Engineering lead:
-- Product/Business owner:
+- Work Items:
 
 ---
