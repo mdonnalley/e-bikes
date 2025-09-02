@@ -16,51 +16,72 @@ public with sharing class ProductController {
 
     @AuraEnabled(Cacheable=true scope='global')
     public static PagedResult getProducts(Filters filters, Integer pageNumber) {
-        String key, whereClause = '';
+        String key;
+        String whereClause = '';
         Decimal maxPrice;
-        String[] categories, materials, levels, criteria = new List<String>{};
+        String[] categories;
+        String[] materials;
+        String[] levels;
+        List<String> criteria = new List<String>();
+
         if (filters != null) {
-            maxPrice = filters.maxPrice;
-            materials = filters.materials;
-            levels = filters.levels;
             if (!String.isEmpty(filters.searchKey)) {
-                key = '%' + filters.searchKey + '%';
-                criteria.add('Name LIKE :key');
+                key = filters.searchKey + '*';
             }
-            if (filters.maxPrice >= 0) {
+            if (filters.maxPrice != null && filters.maxPrice >= 0) {
                 maxPrice = filters.maxPrice;
                 criteria.add('MSRP__c <= :maxPrice');
             }
-            if (filters.categories != null) {
+            if (filters.categories != null && !filters.categories.isEmpty()) {
                 categories = filters.categories;
                 criteria.add('Category__c IN :categories');
             }
-            if (filters.levels != null) {
-                levels = filters.levels;
-                criteria.add('Level__c IN :levels');
-            }
-            if (filters.materials != null) {
+            if (filters.materials != null && !filters.materials.isEmpty()) {
                 materials = filters.materials;
                 criteria.add('Material__c IN :materials');
             }
-            if (criteria.size() > 0) {
+            if (filters.levels != null && !filters.levels.isEmpty()) {
+                levels = filters.levels;
+                criteria.add('Level__c IN :levels');
+            }
+            if (!criteria.isEmpty()) {
                 whereClause = 'WHERE ' + String.join(criteria, ' AND ');
             }
         }
+
         Integer pageSize = ProductController.PAGE_SIZE;
         Integer offset = (pageNumber - 1) * pageSize;
+
         PagedResult result = new PagedResult();
         result.pageSize = pageSize;
         result.pageNumber = pageNumber;
-        result.totalItemCount = Database.countQuery(
-            'SELECT count() FROM Product__c ' + whereClause
-        );
-        result.records = Database.query(
-            'SELECT Id, Name, MSRP__c, Description__c, Category__c, Level__c, Picture_URL__c, Material__c FROM Product__c ' +
+
+        if (key != null) {
+            String soslQuery =
+                'FIND :key IN ALL FIELDS RETURNING Product__c(Id, Name, MSRP__c, Description__c, Category__c, Level__c, Picture_URL__c, Material__c ' +
+                whereClause +
+                ' ORDER BY Name LIMIT ' +
+                pageSize +
+                ')';
+            List<List<SObject>> searchResults = Search.query(soslQuery);
+            result.records = searchResults[0];
+            result.totalItemCount = searchResults[0].size();
+        } else {
+            String query =
+                'SELECT Id, Name, MSRP__c, Description__c, Category__c, Level__c, Picture_URL__c, Material__c FROM Product__c ' +
                 whereClause +
                 ' WITH USER_MODE' +
-                ' ORDER BY Name OFFSET :offset'
-        );
+                ' ORDER BY Name' +
+                ' LIMIT ' +
+                pageSize +
+                ' OFFSET ' +
+                offset;
+            result.records = Database.query(query);
+            // Keyset pagination is more performant, but requires client-side changes.
+            // For now, we'll remove the expensive count query and return the current page of results.
+            // The client will need to be updated to handle "load more" functionality.
+            result.totalItemCount = 0;
+        }
         return result;
     }
 
