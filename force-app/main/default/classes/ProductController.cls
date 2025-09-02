@@ -16,99 +16,51 @@ public with sharing class ProductController {
 
     @AuraEnabled(Cacheable=true scope='global')
     public static PagedResult getProducts(Filters filters, Integer pageNumber) {
-        String searchKey;
+        String key, whereClause = '';
         Decimal maxPrice;
-        String[] categories;
-        String[] materials;
-        String[] levels;
-
+        String[] categories, materials, levels, criteria = new List<String>{};
         if (filters != null) {
-            searchKey = filters.searchKey;
             maxPrice = filters.maxPrice;
-            categories = filters.categories;
             materials = filters.materials;
             levels = filters.levels;
-        }
-
-        Integer pageSize = ProductController.PAGE_SIZE;
-        Integer offset = (pageNumber - 1) * pageSize;
-
-        // Use SOSL if a search key is provided
-        if (!String.isEmpty(searchKey)) {
-            String soslQuery = 'FIND :searchKey IN ALL FIELDS RETURNING Product__c(Id, Name, MSRP__c, Description__c, Category__c, Level__c, Picture_URL__c, Material__c';
-            List<String> criteria = new List<String>();
-            if (maxPrice != null && maxPrice >= 0) {
+            if (!String.isEmpty(filters.searchKey)) {
+                key = '%' + filters.searchKey + '%';
+                criteria.add('Name LIKE :key');
+            }
+            if (filters.maxPrice >= 0) {
+                maxPrice = filters.maxPrice;
                 criteria.add('MSRP__c <= :maxPrice');
             }
-            if (categories != null && !categories.isEmpty()) {
+            if (filters.categories != null) {
+                categories = filters.categories;
                 criteria.add('Category__c IN :categories');
             }
-            if (levels != null && !levels.isEmpty()) {
+            if (filters.levels != null) {
+                levels = filters.levels;
                 criteria.add('Level__c IN :levels');
             }
-            if (materials != null && !materials.isEmpty()) {
+            if (filters.materials != null) {
+                materials = filters.materials;
                 criteria.add('Material__c IN :materials');
             }
-            if (!criteria.isEmpty()) {
-                soslQuery += ' WHERE ' + String.join(criteria, ' AND ');
+            if (criteria.size() > 0) {
+                whereClause = 'WHERE ' + String.join(criteria, ' AND ');
             }
-            soslQuery += ' WITH USER_MODE ORDER BY Name)';
-
-            List<List<SObject>> searchResults = search.query(soslQuery);
-            List<Product__c> products = (List<Product__c>) searchResults[0];
-
-            PagedResult result = new PagedResult();
-            result.pageNumber = pageNumber;
-            result.pageSize = pageSize;
-            result.totalItemCount = products.size();
-
-            Integer fromIndex = offset;
-            Integer toIndex = Math.min(offset + pageSize, products.size());
-
-            if (fromIndex >= products.size()) {
-                result.records = new List<Product__c>();
-            } else {
-                result.records = products.subList(fromIndex, toIndex);
-            }
-            return result;
         }
-
-        // Otherwise, use SOQL
-        String soqlQuery = 'SELECT Id, Name, MSRP__c, Description__c, Category__c, Level__c, Picture_URL__c, Material__c FROM Product__c';
-        List<String> criteria = new List<String>();
-        if (maxPrice != null && maxPrice >= 0) {
-            criteria.add('MSRP__c <= :maxPrice');
-        }
-        if (categories != null && !categories.isEmpty()) {
-            criteria.add('Category__c IN :categories');
-        }
-        if (levels != null && !levels.isEmpty()) {
-            criteria.add('Level__c IN :levels');
-        }
-        if (materials != null && !materials.isEmpty()) {
-            criteria.add('Material__c IN :materials');
-        }
-        if (!criteria.isEmpty()) {
-            soqlQuery += ' WHERE ' + String.join(criteria, ' AND ');
-        }
-        soqlQuery +=
-            ' WITH USER_MODE ORDER BY Name LIMIT ' +
-            (pageSize + 1) +
-            ' OFFSET ' +
-            offset;
-
-        List<Product__c> products = Database.query(soqlQuery);
-
+        Integer pageSize = ProductController.PAGE_SIZE;
+        Integer offset = (pageNumber - 1) * pageSize;
         PagedResult result = new PagedResult();
-        result.pageNumber = pageNumber;
         result.pageSize = pageSize;
-        result.records = products;
-        result.totalItemCount = -1; // We can't know the total count without a slow query
-
-        if (products.size() > pageSize) {
-            products.remove(pageSize);
-        }
-
+        result.pageNumber = pageNumber;
+        result.totalItemCount = Database.countQuery(
+            'SELECT count() FROM Product__c ' + whereClause
+        );
+        result.records = Database.query(
+            'SELECT Id, Name, MSRP__c, Description__c, Category__c, Level__c, Picture_URL__c, Material__c FROM Product__c ' +
+                whereClause +
+                ' WITH USER_MODE' +
+                ' ORDER BY Name OFFSET :offset'
+        );
         return result;
     }
 
