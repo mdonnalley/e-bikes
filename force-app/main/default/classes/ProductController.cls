@@ -23,8 +23,10 @@ public with sharing class ProductController {
             maxPrice = filters.maxPrice;
             materials = filters.materials;
             levels = filters.levels;
+            // Apex Guru Recommendation: Avoid leading wildcards in SOQL queries.
+            // This allows the query to be selective and use an index on the Name field.
             if (!String.isEmpty(filters.searchKey)) {
-                key = '%' + filters.searchKey + '%';
+                key = filters.searchKey + '%';
                 criteria.add('Name LIKE :key');
             }
             if (filters.maxPrice >= 0) {
@@ -52,15 +54,43 @@ public with sharing class ProductController {
         PagedResult result = new PagedResult();
         result.pageSize = pageSize;
         result.pageNumber = pageNumber;
+
+        // Apex Guru Recommendation: Inefficient total item count.
+        // Database.countQuery can be slow. Consider alternative pagination strategies
+        // like keyset pagination if performance is critical.
         result.totalItemCount = Database.countQuery(
             'SELECT count() FROM Product__c ' + whereClause
         );
-        result.records = Database.query(
-            'SELECT Id, Name, MSRP__c, Description__c, Category__c, Level__c, Picture_URL__c, Material__c FROM Product__c ' +
-                whereClause +
-                ' WITH USER_MODE' +
-                ' ORDER BY Name OFFSET :offset'
-        );
+
+        // Apex Guru Recommendation: Slow Pagination with OFFSET.
+        // To optimize, we first query for the Ids of the records on the current page,
+        // and then retrieve the full records for that set of Ids.
+        // This is generally more performant than using OFFSET on a query with many fields.
+        String idQuery =
+            'SELECT Id FROM Product__c ' +
+            whereClause +
+            ' ORDER BY Name LIMIT :pageSize OFFSET :offset';
+        List<Product__c> productIds = Database.query(idQuery);
+
+        if (productIds.isEmpty()) {
+            result.records = new List<Product__c>();
+        } else {
+            List<Id> ids = new List<Id>();
+            for (Product__c p : productIds) {
+                ids.add(p.Id);
+            }
+            result.records = Database.query(
+                'SELECT Id, Name, MSRP__c, Description__c, Category__c, Level__c, Picture_URL__c, Material__c FROM Product__c ' +
+                    'WHERE Id IN :ids' +
+                    ' WITH USER_MODE' +
+                    ' ORDER BY Name'
+            );
+        }
+
+        // Apex Guru Recommendation: Ensure that the frequently filtered fields
+        // (Category__c, Level__c, Material__c) are indexed in Salesforce.
+        // This is a schema change and cannot be done in Apex.
+
         return result;
     }
 
