@@ -24,7 +24,7 @@ public with sharing class ProductController {
             materials = filters.materials;
             levels = filters.levels;
             if (!String.isEmpty(filters.searchKey)) {
-                key = '%' + filters.searchKey + '%';
+                key = filters.searchKey + '%';
                 criteria.add('Name LIKE :key');
             }
             if (filters.maxPrice >= 0) {
@@ -52,15 +52,13 @@ public with sharing class ProductController {
         PagedResult result = new PagedResult();
         result.pageSize = pageSize;
         result.pageNumber = pageNumber;
-        result.totalItemCount = Database.countQuery(
-            'SELECT count() FROM Product__c ' + whereClause
-        );
         result.records = Database.query(
             'SELECT Id, Name, MSRP__c, Description__c, Category__c, Level__c, Picture_URL__c, Material__c FROM Product__c ' +
                 whereClause +
                 ' WITH USER_MODE' +
-                ' ORDER BY Name OFFSET :offset'
+                ' ORDER BY Name LIMIT :pageSize OFFSET :offset'
         );
+        result.totalItemCount = result.records.size();
         return result;
     }
 
