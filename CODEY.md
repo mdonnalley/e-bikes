@@ -3,6 +3,7 @@
 - When asked to analyze a codebase, do NOT make any changes to the codebase unless you are specifically asked to do so.
 - After completing a task, do NOT await a response from the user. If there are more tasks to complete, continue to complete them. If there are no more tasks to complete, acknowledge that you have completed all tasks and that you are done. If you are unsure of what to do next, stop and ask the user for further instructions.
 - NEVER write a canvas unless you are explicitly asked to do so by the user.
+- When asked to use Apex Guru, do NOT report results in a canvas or gist. It must be in the form of a response to the user.
 
 ## Tone and Style
 
