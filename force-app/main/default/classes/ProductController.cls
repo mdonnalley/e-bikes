@@ -59,7 +59,7 @@ public with sharing class ProductController {
             'SELECT Id, Name, MSRP__c, Description__c, Category__c, Level__c, Picture_URL__c, Material__c FROM Product__c ' +
                 whereClause +
                 ' WITH USER_MODE' +
-                ' ORDER BY Name OFFSET :offset'
+                ' ORDER BY Name LIMIT :pageSize OFFSET :offset'
         );
         return result;
     }
