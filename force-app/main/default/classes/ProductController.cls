@@ -22,9 +22,9 @@ public with sharing class ProductController {
         if (filters != null) {
             maxPrice = filters.maxPrice;
             materials = filters.materials;
-            levels = filters.levels;
+levels = filters.levels;
             if (!String.isEmpty(filters.searchKey)) {
-                key = '%' + filters.searchKey + '%';
+                key = filters.searchKey + '%';
                 criteria.add('Name LIKE :key');
             }
             if (filters.maxPrice >= 0) {
@@ -52,15 +52,22 @@ public with sharing class ProductController {
         PagedResult result = new PagedResult();
         result.pageSize = pageSize;
         result.pageNumber = pageNumber;
-        result.totalItemCount = Database.countQuery(
-            'SELECT count() FROM Product__c ' + whereClause
-        );
         result.records = Database.query(
             'SELECT Id, Name, MSRP__c, Description__c, Category__c, Level__c, Picture_URL__c, Material__c FROM Product__c ' +
                 whereClause +
                 ' WITH USER_MODE' +
-                ' ORDER BY Name OFFSET :offset'
+                ' ORDER BY Name LIMIT :pageSize OFFSET :offset'
         );
+        // The SOQL OFFSET clause has a maximum value of 2,000.
+        // If the offset is greater than 2,000, we can't get the totalItemCount.
+        // We can't get the totalItemCount either if there are no records.
+        if (offset > 2000 || result.records.isEmpty()) {
+            result.totalItemCount = result.records.size();
+        } else {
+            result.totalItemCount = Database.countQuery(
+                'SELECT count() FROM Product__c ' + whereClause
+            );
+        }
         return result;
     }
 
