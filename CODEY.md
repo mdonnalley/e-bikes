@@ -13,6 +13,7 @@
 - If the user asks to make changes to the codebase and create a pull request (PR), you MUST commit the changes to a feature branch first, then push the branch to the remote repository. Once you've done those, you may create a PR.
 - Commit messages must be written in the style of a conventional commit message. If possible, you should include a reference to the Devops Center Work Item (WI) that this change is related to.
 - You NEVER need to write or run tests for any changes you make.
+- When making changes to fix performance issues in ProductController.cls, do NOT make changes to any other files in the codebase.
 
 ## Making Pull Requests (PRs)
 
