@@ -52,15 +52,39 @@ public with sharing class ProductController {
         PagedResult result = new PagedResult();
         result.pageSize = pageSize;
         result.pageNumber = pageNumber;
-        result.totalItemCount = Database.countQuery(
-            'SELECT count() FROM Product__c ' + whereClause
-        );
-        result.records = Database.query(
+
+        String query =
             'SELECT Id, Name, MSRP__c, Description__c, Category__c, Level__c, Picture_URL__c, Material__c FROM Product__c ' +
-                whereClause +
-                ' WITH USER_MODE' +
-                ' ORDER BY Name OFFSET :offset'
-        );
+            whereClause +
+            ' WITH USER_MODE' +
+            ' ORDER BY Name';
+
+        // To avoid a costly count query, we request one more record than the page size.
+        // The presence of this extra record tells us if there's a next page.
+        query += ' LIMIT ' + (pageSize + 1);
+        query += ' OFFSET :offset';
+
+        List<Product__c> products = Database.query(query);
+
+        boolean hasNextPage = products.size() > pageSize;
+        if (hasNextPage) {
+            // Remove the extra record before sending to the client.
+            products.remove(products.size() - 1);
+        }
+        result.records = products;
+
+        // We no longer run a separate COUNT query. We deduce the total item count.
+        // This is an approximation for pagination purposes.
+        Integer totalItemCount;
+        if (pageNumber == 1 && !hasNextPage) {
+            totalItemCount = products.size();
+        } else if (hasNextPage) {
+            totalItemCount = pageNumber * pageSize + 1; // At least one more.
+        } else {
+            totalItemCount = (pageNumber - 1) * pageSize + products.size();
+        }
+        result.totalItemCount = totalItemCount;
+
         return result;
     }
 
