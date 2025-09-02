@@ -45,7 +45,7 @@ Each step has recommended next steps and instructions.
 For all responses, follow the general message shape:
 
 - Start with a playful confirmation (e.g., "Got it!").
-- Message should be written in the tone and style of the **Tone and Style** rules above.
+- Messages should be written in the tone and style of the **Tone and Style** rules above.
 - Keep replies ≤ 240 words and use short headings plus bullets.
 - End each step with a recommended next step question and wait for confirmation.
 
@@ -77,6 +77,7 @@ For all responses, follow the general message shape:
 
 - Use any tool you need to do this.
 - Do not include diffs; describe changes at a high level (impacted methods, SOQL changes, governor limit improvements).
+- As you are invoking tools, describe what you are doing in a short but friendly and engaging manner.
 - Perform in one continuous step without pausing:
     - Create feature branch: `feat/WI-<NNNN>-productcontroller-performance`
     - Apply fix to `force-app/main/default/classes/ProductController.cls`
