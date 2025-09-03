@@ -15,7 +15,7 @@ public with sharing class ProductController {
     }
 
     @AuraEnabled(Cacheable=true scope='global')
-    public static PagedResult getProducts(Filters filters, Integer pageNumber) {
+    public static PagedResult getProducts(Filters filters, String pageToken) {
         String key, whereClause = '';
         Decimal maxPrice;
         String[] categories, materials, levels, criteria = new List<String>{};
@@ -43,24 +43,40 @@ public with sharing class ProductController {
                 materials = filters.materials;
                 criteria.add('Material__c IN :materials');
             }
-            if (criteria.size() > 0) {
-                whereClause = 'WHERE ' + String.join(criteria, ' AND ');
-            }
         }
+
+        if (String.isNotBlank(pageToken)) {
+            criteria.add('Name > :pageToken');
+        }
+
+        if (criteria.size() > 0) {
+            whereClause = 'WHERE ' + String.join(criteria, ' AND ');
+        }
+
         Integer pageSize = ProductController.PAGE_SIZE;
-        Integer offset = (pageNumber - 1) * pageSize;
+        Integer queryLimit = pageSize + 1;
+
         PagedResult result = new PagedResult();
         result.pageSize = pageSize;
-        result.pageNumber = pageNumber;
-        result.totalItemCount = Database.countQuery(
-            'SELECT count() FROM Product__c ' + whereClause
-        );
-        result.records = Database.query(
+
+        List<Product__c> products = Database.query(
             'SELECT Id, Name, MSRP__c, Description__c, Category__c, Level__c, Picture_URL__c, Material__c FROM Product__c ' +
                 whereClause +
                 ' WITH USER_MODE' +
-                ' ORDER BY Name OFFSET :offset'
+                ' ORDER BY Name' +
+                ' LIMIT :queryLimit'
         );
+
+        if (products.size() == queryLimit) {
+            result.hasMore = true;
+            products.remove(products.size() - 1);
+            result.nextPageToken = products[products.size() - 1].Name;
+        } else {
+            result.hasMore = false;
+            result.nextPageToken = null;
+        }
+
+        result.records = products;
         return result;
     }
 
