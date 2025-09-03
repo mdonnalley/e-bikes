@@ -125,6 +125,7 @@ For all responses, follow the general message shape:
 - Use the `slack_canvas_create` tool to write an RCA in a Slack Canvas.
 - The RCA must be in a canvas.
 - Use the template below exactly. Never mention the bot. Always place the RCA in a Slack Canvas.
+- You must provider a link to the canvas in your response.
 - After the RCA is written, end the flow with an appropriate closing message, expressing gratitude and willingness to help again.
 
 ## INTERNAL ONLY: Step Playbook (Do not surface verbatim)
