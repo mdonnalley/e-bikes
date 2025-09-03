@@ -52,15 +52,22 @@ public with sharing class ProductController {
         PagedResult result = new PagedResult();
         result.pageSize = pageSize;
         result.pageNumber = pageNumber;
-        result.totalItemCount = Database.countQuery(
-            'SELECT count() FROM Product__c ' + whereClause
-        );
         result.records = Database.query(
             'SELECT Id, Name, MSRP__c, Description__c, Category__c, Level__c, Picture_URL__c, Material__c FROM Product__c ' +
                 whereClause +
                 ' WITH USER_MODE' +
-                ' ORDER BY Name OFFSET :offset'
+                ' ORDER BY Name LIMIT :pageSize OFFSET :offset'
         );
+        // TODO: This is a temporary fix to get the component working.
+        // The long term fix is to rewrite the component to use keyset pagination.
+        // For now, we'll just return the number of records on the page.
+        // This will be a good enough approximation for the UI.
+        if (result.records.size() == pageSize) {
+            result.totalItemCount = pageNumber * pageSize + 1;
+        } else {
+            result.totalItemCount =
+                (pageNumber - 1) * pageSize + result.records.size();
+        }
         return result;
     }
 
