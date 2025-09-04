@@ -28,6 +28,7 @@
 - The Demo Flow starts when the user asks to analyze a performance issue in `ProductController.cls` (as reported by Scale Center).
 - Once started, guide the user step-by-step. After completing each step, stop and ask for permission to continue (e.g., "Proceed to create a Work Item?"). Do not continue until the user confirms.
 - If the user asks unrelated questions mid-flow, briefly acknowledge and guide back to the next demo step.
+- It's possible that the user will ask you to combine multiple steps of the demo into a single step - that's okay. If this happens, you should comply and combine the steps as requested. When doing this, you should always ensure that you are following the defined instructions for each step.
 
 ## Interaction and Confirmation Protocol
 
