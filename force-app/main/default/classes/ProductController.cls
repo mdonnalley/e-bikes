@@ -24,22 +24,23 @@ public with sharing class ProductController {
             materials = filters.materials;
             levels = filters.levels;
             if (!String.isEmpty(filters.searchKey)) {
-                key = '%' + filters.searchKey + '%';
+                // Use a search key with a trailing wildcard to allow for index usage.
+                key = filters.searchKey + '%';
                 criteria.add('Name LIKE :key');
             }
             if (filters.maxPrice >= 0) {
                 maxPrice = filters.maxPrice;
                 criteria.add('MSRP__c <= :maxPrice');
             }
-            if (filters.categories != null) {
+            if (filters.categories != null && filters.categories.size() > 0) {
                 categories = filters.categories;
                 criteria.add('Category__c IN :categories');
             }
-            if (filters.levels != null) {
+            if (filters.levels != null && filters.levels.size() > 0) {
                 levels = filters.levels;
                 criteria.add('Level__c IN :levels');
             }
-            if (filters.materials != null) {
+            if (filters.materials != null && filters.materials.size() > 0) {
                 materials = filters.materials;
                 criteria.add('Material__c IN :materials');
             }
@@ -52,14 +53,18 @@ public with sharing class ProductController {
         PagedResult result = new PagedResult();
         result.pageSize = pageSize;
         result.pageNumber = pageNumber;
-        result.totalItemCount = Database.countQuery(
-            'SELECT count() FROM Product__c ' + whereClause
-        );
+
+        // The count query was removed to improve performance.
+        // The UI can infer if there are more pages if the number of records returned equals the page size.
+        result.totalItemCount = 0;
+
         result.records = Database.query(
             'SELECT Id, Name, MSRP__c, Description__c, Category__c, Level__c, Picture_URL__c, Material__c FROM Product__c ' +
                 whereClause +
                 ' WITH USER_MODE' +
-                ' ORDER BY Name OFFSET :offset'
+                ' ORDER BY Name' +
+                ' LIMIT :pageSize' +
+                ' OFFSET :offset'
         );
         return result;
     }
