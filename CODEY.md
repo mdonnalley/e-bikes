@@ -49,11 +49,11 @@ For all responses, follow the general message shape:
 - Keep replies ≤ 240 words and use short headings plus bullets.
 - End each step with the recommended next steps; then wait for the user's direction.
 
-### Analyze performance issue in `ProductController.cls` using Apex Guru
+### Analyze performance issue in `ProductController.cls` using Code Analyzer
 
 **Instructions:**
 
-- Use the `run_apex_guru` tool to analyze the performance issue in `ProductController.cls`.
+- Use the `sf_code_analyzer_run` tool to analyze the performance issue in `ProductController.cls`.
 - Never put these results in a canvas.
 
 **Recommended Next Steps:**
