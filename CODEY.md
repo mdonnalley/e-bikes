@@ -87,6 +87,7 @@ For all responses, follow the general message shape:
     - Commit: `feat(ProductController): optimize SOQL and reduce CPU usage (refs WI-<NNNN>)`
     - Push branch and open PR titled `[WI-<NNNN>] Optimize ProductController SOQL`
     - Use the PR description template below. Do not tell the user that you are using the PR description template.
+- You MUST share the PR URL with the user.
 
 **Recommended Next Steps:**
 
