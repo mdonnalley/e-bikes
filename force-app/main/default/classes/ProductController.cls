@@ -49,18 +49,35 @@ public with sharing class ProductController {
         }
         Integer pageSize = ProductController.PAGE_SIZE;
         Integer offset = (pageNumber - 1) * pageSize;
+
+        // We query for one more record than the page size to see if there's a next page.
+        Integer queryLimit = pageSize + 1;
+
+        String query =
+            'SELECT Id, Name, MSRP__c, Description__c, Category__c, Level__c, Picture_URL__c, Material__c FROM Product__c ' +
+            whereClause +
+            ' WITH USER_MODE' +
+            ' ORDER BY Name' +
+            ' LIMIT :queryLimit' +
+            ' OFFSET :offset';
+
+        List<Product__c> products = Database.query(query);
+
         PagedResult result = new PagedResult();
         result.pageSize = pageSize;
         result.pageNumber = pageNumber;
-        result.totalItemCount = Database.countQuery(
-            'SELECT count() FROM Product__c ' + whereClause
-        );
-        result.records = Database.query(
-            'SELECT Id, Name, MSRP__c, Description__c, Category__c, Level__c, Picture_URL__c, Material__c FROM Product__c ' +
-                whereClause +
-                ' WITH USER_MODE' +
-                ' ORDER BY Name OFFSET :offset'
-        );
+
+        if (products.size() == queryLimit) {
+            // There is a next page, so we remove the extra record and estimate the total count.
+            products.remove(pageSize);
+            result.totalItemCount = (pageNumber * pageSize) + 1;
+        } else {
+            // This is the last page.
+            result.totalItemCount =
+                (pageNumber - 1) * pageSize + products.size();
+        }
+
+        result.records = products;
         return result;
     }
 
