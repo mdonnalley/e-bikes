@@ -24,7 +24,7 @@ public with sharing class ProductController {
             materials = filters.materials;
             levels = filters.levels;
             if (!String.isEmpty(filters.searchKey)) {
-                key = '%' + filters.searchKey + '%';
+                key = filters.searchKey + '%';
                 criteria.add('Name LIKE :key');
             }
             if (filters.maxPrice >= 0) {
@@ -55,12 +55,10 @@ public with sharing class ProductController {
         result.totalItemCount = Database.countQuery(
             'SELECT count() FROM Product__c ' + whereClause
         );
-        result.records = Database.query(
-            'SELECT Id, Name, MSRP__c, Description__c, Category__c, Level__c, Picture_URL__c, Material__c FROM Product__c ' +
-                whereClause +
-                ' WITH USER_MODE' +
-                ' ORDER BY Name OFFSET :offset'
-        );
+        String query = 'SELECT Id FROM Product__c ' + whereClause + ' ORDER BY Name LIMIT :pageSize OFFSET :offset';
+        List<Product__c> productIds = Database.query(query);
+        Set<Id> pIds = (new Map<Id, SObject>(productIds)).keySet();
+        result.records = [SELECT Id, Name, MSRP__c, Description__c, Category__c, Level__c, Picture_URL__c, Material__c FROM Product__c WHERE Id IN :pIds ORDER BY Name];
         return result;
     }
 
