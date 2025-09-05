@@ -98,22 +98,13 @@ For all responses, follow the general message shape:
 
 - This step is done by the user. At this point you are waiting for the user to express approval and desire to merge the PR and deploy to production.
 
-### Merge and deploy
+### Merge, deploy, and validate
 
 **Instructions:**
 
 - Use the `sf_deploy_metadata` tool to merge the PR and deploy to production.
 - NEVER use any other merge/deploy tool.
-
-**Recommended Next Steps:**
-
-- "Should I check Scale Agent to verify that we've resolved the performance issue?"
-
-### Re-check Scale Agent to verify improvement
-
-**Instructions:**
-
-- Use the `get_scale_center_status` tool to re-check Scale Agent to verify the improvement.
+- After deploying, use the `get_scale_center_status` tool to validate the fix resolved the performance issue.
 
 **Recommended Next Steps:**
 
@@ -143,10 +134,7 @@ For all responses, follow the general message shape:
 - Fix + Branch and PR (combined)
     - Internal recommended next step: Merge and deploy via `sf_deploy_metadata`.
 
-- Merge and deploy (Tool: `sf_deploy_metadata`)
-    - Internal recommended next step: Re-check Scale Agent.
-
-- Re-check Scale Agent (Tool: `get_scale_center_status`)
+- Merge, deploy, and validate (Tools: `sf_deploy_metadata` and `get_scale_center_status`)
     - Internal recommended next step: Draft RCA in a Slack Canvas.
 
 - RCA (Tool: `slack_canvas_create`)
